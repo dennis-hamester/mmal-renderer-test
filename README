@@ -1,0 +1,23 @@
+This is a small test program I wrote while figuring out how the MMAL renderer
+component works on the VideoCore / RaspberryPi. Might be useful to someone else
+who is also working with MMAL.
+
+It renders two moving lines into a YUV420 buffer. Vsync is achieved by waiting
+explicitly for the number of buffers inside the render component to drop to 1
+before sending the next one. The render component will always keep the
+currently displayed buffer.
+
+You can set the number of buffers as well as width and height on the command
+line (see --help). There must be at least 2 buffers. Using more than 3 is
+currently not useful, because images are not rendered in advance.
+
+YUV420 buffers must follow strict alignment requirements. The pitch of a line
+in the Y plane must be a multiple of 32. The pitches in the other planes as
+well as the heights (in lines) of all planes must be a multiple of 16. Setting
+the plane layout in a buffer header is not necessary (although it is currently
+done in this tool). But is important to set the correct buffer size before
+sending it to the port.
+
+Flushing the ports of VideoCore components explicitly (through mmal_port_flush)
+is not working. I always get 'not implemented' errors, which screw up
+everything. However, disabling a port achieves the same thing.
